@@ -1,0 +1,11 @@
+.draggable {
+  position: absolute;
+  user-select: none;
+  cursor: grab;
+}
+.draggable:active {
+  cursor: grabbing;
+}
+.sidebar-transition {
+  transition: right 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
