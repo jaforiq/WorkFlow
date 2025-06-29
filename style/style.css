@@ -9,3 +9,15 @@
 .sidebar-transition {
   transition: right 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+#dots-bg {
+  background-color: #262525;
+  background-image: radial-gradient(#c9c3c3 1px, transparent 1px);
+  background-size: 20px 20px; /* This will be overridden by JS */
+  opacity: 0.2;
+}
+
+svg path {
+  pointer-events: stroke !important;
+}
+

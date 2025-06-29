@@ -17,7 +17,6 @@ export function initEdgeManager() {
     svg.style.width = "100%";
     svg.style.height = "100%";
     svg.style.zIndex = "5";
-    svg.style.pointerEvents = "none";
     main.prepend(svg);
   }
 }
@@ -98,14 +97,11 @@ export function drawEdges(mouseEvent) {
       path.setAttribute("stroke-width", "2");
       path.setAttribute("fill", "none");
       path.setAttribute("data-edge-id", edge.id);
-      path.addEventListener("mouseenter", () =>
-        showDeleteButton(edge, (p1.x + p2.x) / 2, (p1.y + p2.y) / 2)
-      );
+      path.setAttribute("pointer-events", "stroke");
+      path.addEventListener("mouseenter", () => {
+        showDeleteButton(edge, (p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      });
       svg.appendChild(path);
-
-      const dx = 3 * (p2.x - c2.x);
-      const dy = 3 * (p2.y - c2.y);
-      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
       const size = 12;
       const offset = 10;
@@ -153,42 +149,60 @@ export function drawEdges(mouseEvent) {
 }
 
 function showDeleteButton(edge, x, y) {
+  console.log("Showing delete button at:", x, y);
+
   let btn = document.getElementById("edge-delete-btn");
+
   if (!btn) {
     btn = document.createElement("div");
     btn.id = "edge-delete-btn";
-    btn.style.position = "absolute";
-    btn.style.width = "24px";
-    btn.style.height = "24px";
-    btn.style.background = "#ff4d4f";
-    btn.style.color = "white";
-    btn.style.borderRadius = "50%";
-    btn.style.display = "flex";
-    btn.style.alignItems = "center";
-    btn.style.justifyContent = "center";
-    btn.style.cursor = "pointer";
-    btn.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
-    btn.style.fontWeight = "bold";
-    btn.style.fontSize = "16px";
-    btn.style.border = "2px solid white";
-    btn.style.zIndex = "100";
-    btn.style.pointerEvents = "auto";
+    Object.assign(btn.style, {
+      width: "24px",
+      height: "24px",
+      background: "#ff4d4f",
+      color: "white",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+      fontWeight: "bold",
+      fontSize: "16px",
+      border: "2px solid white",
+      zIndex: "9999",
+      pointerEvents: "auto",
+      position: "fixed",
+      transition: "opacity 0.2s ease-in-out",
+    });
     btn.title = "Delete edge";
     btn.innerText = "X";
+
     btn.onclick = function (e) {
       edges = edges.filter((ed) => ed.id !== edge.id);
       btn.remove();
       drawEdges();
       e.stopPropagation();
     };
-    main.appendChild(btn);
+
+    document.body.appendChild(btn);
   }
-  btn.style.left = x - 12 + "px";
-  btn.style.top = y - 12 + "px";
+
+  const mainRect = main.getBoundingClientRect();
+  btn.style.left = mainRect.left + x - 12 + "px";
+  btn.style.top = mainRect.top + y - 12 + "px";
   btn.style.display = "flex";
 
-  svg.onmouseleave = () => {
-    if (btn) btn.style.display = "none";
+  if (btn.hideTimeout) clearTimeout(btn.hideTimeout);
+
+  btn.onmouseenter = () => {
+    clearTimeout(btn.hideTimeout);
+  };
+
+  btn.onmouseleave = () => {
+    btn.hideTimeout = setTimeout(() => {
+      btn.style.display = "none";
+    }, 300);
   };
 }
 
